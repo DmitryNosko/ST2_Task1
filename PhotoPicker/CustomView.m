@@ -22,7 +22,7 @@
 
 - (void) drawRect:(CGRect)rect {
     UIImage *image = [UIImage imageNamed:self.imageName];
-    CGRect imageRect = CGRectMake(0, 0, rect.size.width, rect.size.height);
+    CGRect imageRect = CGRectMake(0, 0, image.size.width, image.size.height);
     CGContextTranslateCTM(UIGraphicsGetCurrentContext(), 0, rect.size.height);
     CGContextScaleCTM(UIGraphicsGetCurrentContext(), 1.0, -1.0);
     CGContextDrawImage(UIGraphicsGetCurrentContext(), imageRect, image.CGImage);

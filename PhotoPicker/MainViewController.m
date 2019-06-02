@@ -10,9 +10,15 @@
 #import "SecondViewController.h"
 
 @interface MainViewController ()
+@property (assign, nonatomic) NSInteger count;
 @end
 
 @implementation MainViewController
+
+- (void) loadView {
+    [super loadView];
+    _count = 0;
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -28,11 +34,12 @@
     
 }
 
-- (void) viewWillAppear:(BOOL)animated {
+- (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     if (self.currentCustomView != nil) {
-        
+        _count++;
         [self.view addSubview:self.currentCustomView];
+        
         self.currentCustomView.translatesAutoresizingMaskIntoConstraints = NO;
         
         [NSLayoutConstraint activateConstraints:@[
@@ -42,7 +49,7 @@
                                                   [self.currentCustomView.heightAnchor constraintEqualToConstant:100]
                                                   ]];
     }
-}
+         }
 
 - (void)addScrollView:(id) sender {
     SecondViewController* sVc = [[SecondViewController alloc] init];
@@ -56,7 +63,6 @@
     UIView* selectedView = [self.view hitTest:[panGesture locationInView:self.view] withEvent:nil];
     if (![selectedView isEqual:self.view]) {
         self.currentCustomView = [self.view.subviews objectAtIndex:[self.view.subviews indexOfObject:selectedView]];
-        
         self.currentCustomView.center = [panGesture locationInView:self.view];
     }
 }

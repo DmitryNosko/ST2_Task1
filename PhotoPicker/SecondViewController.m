@@ -17,6 +17,7 @@
 @property (weak, nonatomic) CustomView* customView;
 @property (weak, nonatomic) UILabel* descriptionLabel;
 @property (weak, nonatomic) MainViewController* mainVC;
+@property (strong, nonatomic) NSDictionary* imagesWithDiscription;
 
 @end
 
@@ -26,31 +27,66 @@
     [super viewDidLoad];
     self.title = @"Select item";
     self.view.backgroundColor = [UIColor whiteColor];
+    
+    self.imagesWithDiscription = @{@"dog1" : @"http://url_dog1",
+                                   @"dog2" : @"http://url_dog2",
+                                   @"dog3" : @"http://url_dog3",
+                                   @"dog4" : @"http://url_dog4",
+                                   @"dog5" : @"http://url_dog5",
+                                   @"dog6" : @"http://url_dog6",
+                                   @"dog7" : @"http://url_dog7",
+                                   @"dog8" : @"http://url_dog8",
+                                   @"dog9" : @"http://url_dog9",
+                                   @"dog10" : @"http://url_dog10",
+                                   @"dog11" : @"http://url_dog11",
+                                   @"dog12" : @"http://url_dog12",
+                                   @"dog13" : @"http://url_dog13",
+                                   @"cat1" : @"http://url_cat1",
+                                   @"cat2" : @"http://url_cat2",
+                                   @"cat3" : @"http://url_cat3",
+                                   @"cat4" : @"http://url_cat4",
+                                   @"cat5" : @"http://url_cat5",
+                                   @"cat6" : @"http://url_cat6",
+                                   @"cat7" : @"http://url_cat7",
+                                   @"cat8" : @"http://url_cat8",
+                                   @"cat9" : @"http://url_cat9",
+                                   @"cat10" : @"http://url_cat10",
+                                   @"cat11" : @"http://url_cat11",
+                                   @"cat12" : @"http://url_cat12",
+                                   @"car" : @"http://url_car",
+                                   @"palace" : @"http://url_palace",
+                                   @"river" : @"http://url_river",
+                                   @"road" : @"http://url_road"
+                                   };
+    
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:nil style:UIBarButtonItemStylePlain target:nil action:nil];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(backToRootVC:)];
+    
     [self.view addSubview:self.scrollView];
     self.scrollView.backgroundColor = [UIColor whiteColor];
-    [self.scrollView setContentSize:CGSizeMake(self.view.frame.size.width, self.view.frame.size.height * 9)];
+    [self.scrollView setContentSize:CGSizeMake(self.view.frame.size.width, self.view.frame.size.height * (self.imagesWithDiscription.count / 2))];
     self.scrollView.translatesAutoresizingMaskIntoConstraints = NO;
-    
-    CustomView* view = [[CustomView alloc] init];
-    [view drawRect:CGRectMake(50, 100, 320, 100)];
-    [self.view addSubview:view];
-    
     [self scrollViewConstraints];
+
+    [self fillScrollView];
     
-    int step = 200;
+    UITapGestureRecognizer* tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapForDiscripyion:)];
+    [self.scrollView addGestureRecognizer:tapGesture];
+}
+
+#pragma mark - Methods
+
+- (void) fillScrollView {
     
-    NSDictionary* imagesWithURL = @{@"BY" : @"http://url_BY",
-                                    @"UA" : @"http://url_UA",
-                                    @"MD" : @"http://url_MD",
-                                    @"KG" : @"http://url_KG"
-                                    };
+    int step = 300;
     
     int i = 0;
-    for(id key in imagesWithURL) {
-        CGRect rectForImage = CGRectMake(50, i * step + 20, 320, 130);
-        CGRect rectForDescription = CGRectMake(50, i * step + 152, 320, 30);
+    for(id key in self.imagesWithDiscription) {
+        
+        UIImage *image = [UIImage imageNamed:key];
+        
+        CGRect rectForImage = CGRectMake(50, i * step + 20, image.size.width, image.size.height);
+        CGRect rectForDescription = CGRectMake(50, i * step + 263, image.size.width, 30);
         
         UILabel* descriptionLabel = [[UILabel alloc] initWithFrame:rectForDescription];
         descriptionLabel.backgroundColor = [UIColor clearColor];
@@ -58,20 +94,18 @@
         descriptionLabel.layer.borderWidth = 1;
         descriptionLabel.layer.borderColor = [UIColor lightGrayColor].CGColor;
         descriptionLabel.textColor = [UIColor blackColor];
-        descriptionLabel.text = [imagesWithURL objectForKey:key];
-        CustomView* customImageView = [[CustomView alloc] initWithFrame:rectForImage imageName:key url:[imagesWithURL objectForKey:key]];
+        descriptionLabel.text = [self.imagesWithDiscription objectForKey:key];
+        [self.scrollView addSubview:descriptionLabel];
+        
+        CustomView* customImageView = [[CustomView alloc] initWithFrame:rectForImage imageName:key url:[self.imagesWithDiscription objectForKey:key]];
         [customImageView drawRect:rectForImage];
         customImageView.layer.borderWidth = 3;
         customImageView.layer.borderColor = [UIColor lightGrayColor].CGColor;
         customImageView.layer.cornerRadius = 3;
         [self.scrollView addSubview:customImageView];
-        [self.scrollView addSubview:descriptionLabel];
         
         i++;
     }
-    
-    UITapGestureRecognizer* tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapForDiscripyion:)];
-    [self.scrollView addGestureRecognizer:tapGesture];
     
 }
 
@@ -94,10 +128,6 @@
 
 #pragma mark - Constraints
 
-- (void)backToRootVC:(id) sender {
-    [self.navigationController popToRootViewControllerAnimated:YES];
-}
-
 - (void) scrollViewConstraints {
     [NSLayoutConstraint activateConstraints:@[
                                               [self.scrollView.leadingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leadingAnchor],
@@ -107,6 +137,10 @@
                                               ]];
 }
 
+#pragma mark - Navigation
 
+- (void)backToRootVC:(id) sender {
+    [self.navigationController popToRootViewControllerAnimated:YES];
+}
 
 @end
