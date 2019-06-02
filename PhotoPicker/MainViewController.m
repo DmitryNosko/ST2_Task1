@@ -10,15 +10,9 @@
 #import "SecondViewController.h"
 
 @interface MainViewController ()
-@property (assign, nonatomic) NSInteger count;
 @end
 
 @implementation MainViewController
-
-- (void) loadView {
-    [super loadView];
-    _count = 0;
-}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -36,20 +30,14 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    
     if (self.currentCustomView != nil) {
-        _count++;
         [self.view addSubview:self.currentCustomView];
-        
-        self.currentCustomView.translatesAutoresizingMaskIntoConstraints = NO;
-        
-        [NSLayoutConstraint activateConstraints:@[
-                                                  [self.currentCustomView.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
-                                                  [self.currentCustomView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor],
-                                                  [self.currentCustomView.widthAnchor constraintEqualToConstant:100],
-                                                  [self.currentCustomView.heightAnchor constraintEqualToConstant:100]
-                                                  ]];
+        self.currentCustomView.frame = CGRectMake(self.view.center.x - 50, self.view.center.y - 50, 100, 100);
     }
-         }
+ }
+
+#pragma mark - Navigation
 
 - (void)addScrollView:(id) sender {
     SecondViewController* sVc = [[SecondViewController alloc] init];

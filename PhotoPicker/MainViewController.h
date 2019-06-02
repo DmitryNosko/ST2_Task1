@@ -10,5 +10,7 @@
 #import "CustomView.h"
 
 @interface MainViewController : UIViewController
+
 @property (weak, nonatomic) CustomView* currentCustomView;
+
 @end

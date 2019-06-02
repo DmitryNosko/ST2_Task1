@@ -140,6 +140,8 @@
 #pragma mark - Navigation
 
 - (void)backToRootVC:(id) sender {
+    MainViewController* root = [self.navigationController.viewControllers objectAtIndex:0];
+    root.currentCustomView = nil;
     [self.navigationController popToRootViewControllerAnimated:YES];
 }
 
