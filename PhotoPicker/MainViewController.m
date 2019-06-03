@@ -10,6 +10,7 @@
 #import "SecondViewController.h"
 
 @interface MainViewController ()
+@property (assign, nonatomic) CGPoint touchOffset;
 @end
 
 @implementation MainViewController
@@ -20,20 +21,14 @@
     self.title = @"Photo picker";
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addScrollView:)];
     
-    UIPanGestureRecognizer* panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
-    [self.view addGestureRecognizer:panGesture];
-    
-    UITapGestureRecognizer* tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
-    [self.view addGestureRecognizer:tapGesture];
-    
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
-    if (self.currentCustomView != nil) {
-        [self.view addSubview:self.currentCustomView];
-        self.currentCustomView.frame = CGRectMake(self.view.center.x - 50, self.view.center.y - 50, 100, 100);
+    if (self.draggingCustomView != nil) {
+        [self.view addSubview:self.draggingCustomView];
+        self.draggingCustomView.frame = CGRectMake(self.view.center.x - 50, self.view.center.y - 50, 100, 100);
     }
  }
 
@@ -44,27 +39,36 @@
     [self.navigationController pushViewController:sVc animated:YES];
 }
 
-#pragma mark - Gesture
+#pragma mark - Touches
 
-- (void) handlePan:(UIPanGestureRecognizer*) panGesture {
+- (void) touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     
-    UIView* selectedView = [self.view hitTest:[panGesture locationInView:self.view] withEvent:nil];
-    if (![selectedView isEqual:self.view]) {
-        self.currentCustomView = [self.view.subviews objectAtIndex:[self.view.subviews indexOfObject:selectedView]];
-        self.currentCustomView.center = [panGesture locationInView:self.view];
-    }
-}
-
-- (void) handleTap:(UITapGestureRecognizer*) tapGesture {
-    UIView* selectedView = [self.view hitTest:[tapGesture locationInView:self.view] withEvent:nil];
-    if (![selectedView isEqual:self.view]) {
-        self.currentCustomView = [self.view.subviews objectAtIndex:[self.view.subviews indexOfObject:selectedView]];
-        self.title = self.currentCustomView.imageURL;
+    UITouch* touch = [touches anyObject];
+    CGPoint pointOnMainView = [touch locationInView:self.view];
+    UIView* view = [self.view hitTest:pointOnMainView withEvent:event];
+    if (![view isEqual:self.view]) {
+        self.draggingCustomView = ((CustomView*)view);
+        self.title = self.draggingCustomView.imageURL;
+        CGPoint touchPoint = [touch locationInView:self.draggingCustomView];
+        self.touchOffset = CGPointMake(CGRectGetMidX(self.draggingCustomView.bounds) - touchPoint.x,
+                                       CGRectGetMidY(self.draggingCustomView.bounds) - touchPoint.y);
     } else {
+        self.draggingCustomView = nil;
         self.title = @"Photo picker";
     }
 }
 
+- (void) touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    
+    UITouch* touch = [touches anyObject];
+    CGPoint pointOnMainView = [touch locationInView:self.view];
+    if (self.draggingCustomView) {
+        CGPoint correction = CGPointMake(pointOnMainView.x + self.touchOffset.x,
+                                         pointOnMainView.y + self.touchOffset.y);
+        self.draggingCustomView.center = correction;
+    }
+    
+}
 
 
 @end

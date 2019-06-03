@@ -70,7 +70,7 @@
 
     [self fillScrollView];
     
-    UITapGestureRecognizer* tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapForDiscripyion:)];
+    UITapGestureRecognizer* tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapForDiscription:)];
     [self.scrollView addGestureRecognizer:tapGesture];
 }
 
@@ -112,14 +112,14 @@
 
 #pragma mark - Gesture
 
-- (void)handleTapForDiscripyion:(UITapGestureRecognizer*) tapGesture {
+- (void)handleTapForDiscription:(UITapGestureRecognizer*) tapGesture {
     
     UIView* selectedView = [self.scrollView hitTest:[tapGesture locationInView:self.scrollView] withEvent:nil];
     if (![selectedView isEqual:self.scrollView]) {
         
         self.customView = [self.scrollView.subviews objectAtIndex:[self.scrollView.subviews indexOfObject:selectedView]];
         MainViewController* root = [self.navigationController.viewControllers objectAtIndex:0];
-        root.currentCustomView = self.customView;
+        root.draggingCustomView = self.customView;
         root.title = self.customView.imageURL;
         [self.navigationController popToRootViewControllerAnimated:YES];
     }
@@ -141,7 +141,7 @@
 
 - (void)backToRootVC:(id) sender {
     MainViewController* root = [self.navigationController.viewControllers objectAtIndex:0];
-    root.currentCustomView = nil;
+    root.draggingCustomView = nil;
     [self.navigationController popToRootViewControllerAnimated:YES];
 }
 
