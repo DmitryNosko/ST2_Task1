@@ -12,5 +12,6 @@
 @interface MainViewController : UIViewController
 
 @property (weak, nonatomic) CustomView* draggingCustomView;
+- (void) addSelectedView:(NSString*) image url:(NSString*) url;
 
 @end

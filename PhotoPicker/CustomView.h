@@ -10,9 +10,9 @@
 
 @interface CustomView : UIView
 
-- (instancetype)initWithFrame:(CGRect)frame imageName:(NSString*) name url:(NSString*) url;
-
 @property (strong, nonatomic) NSString* imageURL;
 @property (strong, nonatomic) NSString* imageName;
+
+- (instancetype)initWithFrame:(CGRect)frame imageName:(NSString*) name url:(NSString*) url;
 
 @end

@@ -15,9 +15,8 @@
 
 @property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
 @property (weak, nonatomic) CustomView* customView;
-@property (weak, nonatomic) UILabel* descriptionLabel;
 @property (weak, nonatomic) MainViewController* mainVC;
-@property (strong, nonatomic) NSDictionary* imagesWithDiscription;
+@property (strong, nonatomic) NSDictionary* imageNameToURL;
 
 @end
 
@@ -28,7 +27,7 @@
     self.title = @"Select item";
     self.view.backgroundColor = [UIColor whiteColor];
     
-    self.imagesWithDiscription = @{@"dog1" : @"http://url_dog1",
+    self.imageNameToURL = @{@"dog1" : @"http://url_dog1",
                                    @"dog2" : @"http://url_dog2",
                                    @"dog3" : @"http://url_dog3",
                                    @"dog4" : @"http://url_dog4",
@@ -60,75 +59,21 @@
                                    };
     
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:nil style:UIBarButtonItemStylePlain target:nil action:nil];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(backToRootVC:)];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(moveToRootView:)];
     
     [self.view addSubview:self.scrollView];
     self.scrollView.backgroundColor = [UIColor whiteColor];
-    [self.scrollView setContentSize:CGSizeMake(self.view.frame.size.width, self.view.frame.size.height * (self.imagesWithDiscription.count / 2))];
+    [self.scrollView setContentSize:CGSizeMake(self.view.frame.size.width, self.view.frame.size.height * (self.imageNameToURL.count / 2))];
     self.scrollView.translatesAutoresizingMaskIntoConstraints = NO;
-    [self scrollViewConstraints];
+    [self setScrollViewConstraints];
 
     [self fillScrollView];
     
-    UITapGestureRecognizer* tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapForDiscription:)];
+    UITapGestureRecognizer* tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(moveToFirstView:)];
     [self.scrollView addGestureRecognizer:tapGesture];
 }
 
-#pragma mark - Methods
-
-- (void) fillScrollView {
-    
-    int step = 300;
-    
-    int i = 0;
-    for(id key in self.imagesWithDiscription) {
-        
-        UIImage *image = [UIImage imageNamed:key];
-        
-        CGRect rectForImage = CGRectMake(50, i * step + 20, image.size.width, image.size.height);
-        CGRect rectForDescription = CGRectMake(50, i * step + 263, image.size.width, 30);
-        
-        UILabel* descriptionLabel = [[UILabel alloc] initWithFrame:rectForDescription];
-        descriptionLabel.backgroundColor = [UIColor clearColor];
-        descriptionLabel.layer.cornerRadius = 5;
-        descriptionLabel.layer.borderWidth = 1;
-        descriptionLabel.layer.borderColor = [UIColor lightGrayColor].CGColor;
-        descriptionLabel.textColor = [UIColor blackColor];
-        descriptionLabel.text = [self.imagesWithDiscription objectForKey:key];
-        [self.scrollView addSubview:descriptionLabel];
-        
-        CustomView* customImageView = [[CustomView alloc] initWithFrame:rectForImage imageName:key url:[self.imagesWithDiscription objectForKey:key]];
-        [customImageView drawRect:rectForImage];
-        customImageView.layer.borderWidth = 3;
-        customImageView.layer.borderColor = [UIColor lightGrayColor].CGColor;
-        customImageView.layer.cornerRadius = 3;
-        [self.scrollView addSubview:customImageView];
-        
-        i++;
-    }
-    
-}
-
-
-#pragma mark - Gesture
-
-- (void)handleTapForDiscription:(UITapGestureRecognizer*) tapGesture {
-    
-    UIView* selectedView = [self.scrollView hitTest:[tapGesture locationInView:self.scrollView] withEvent:nil];
-    if (![selectedView isEqual:self.scrollView]) {
-        
-        self.customView = [self.scrollView.subviews objectAtIndex:[self.scrollView.subviews indexOfObject:selectedView]];
-        MainViewController* root = [self.navigationController.viewControllers objectAtIndex:0];
-        root.draggingCustomView = self.customView;
-        root.title = self.customView.imageURL;
-        [self.navigationController popToRootViewControllerAnimated:YES];
-    }
-    
-}
-
-#pragma mark - Constraints
-
-- (void) scrollViewConstraints {
+- (void) setScrollViewConstraints {
     [NSLayoutConstraint activateConstraints:@[
                                               [self.scrollView.leadingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leadingAnchor],
                                               [self.scrollView.trailingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor],
@@ -137,12 +82,71 @@
                                               ]];
 }
 
-#pragma mark - Navigation
+- (void) fillScrollView {
+    
+    CustomView* prevView = nil;
+    
+    for(id key in self.imageNameToURL) {
+        UIImage *image = [UIImage imageNamed:key];
+        
+        UILabel* descriptionLabel = [[UILabel alloc] init];
+        descriptionLabel.backgroundColor = [UIColor clearColor];
+        descriptionLabel.layer.cornerRadius = 5;
+        descriptionLabel.layer.borderWidth = 1;
+        descriptionLabel.layer.borderColor = [UIColor lightGrayColor].CGColor;
+        descriptionLabel.textColor = [UIColor blackColor];
+        descriptionLabel.text = [self.imageNameToURL objectForKey:key];
+        [self.scrollView addSubview:descriptionLabel];
+        
+        CustomView* customImageView = [[CustomView alloc] initWithFrame:CGRectMake(0, 0, image.size.width, image.size.height) imageName:key url:[self.imageNameToURL objectForKey:key]];
+        customImageView.layer.borderWidth = 2;
+        customImageView.layer.borderColor = [UIColor blackColor].CGColor;
+        [self.scrollView addSubview:customImageView];
+        
+        customImageView.translatesAutoresizingMaskIntoConstraints = NO;
+        descriptionLabel.translatesAutoresizingMaskIntoConstraints = NO;
+        [NSLayoutConstraint activateConstraints:@[
+                                                  [customImageView.centerXAnchor constraintEqualToAnchor:self.scrollView.safeAreaLayoutGuide.centerXAnchor],
+                                                  [customImageView.heightAnchor constraintEqualToConstant:image.size.height],
+                                                  [customImageView.widthAnchor constraintEqualToConstant:image.size.width],
+                                                  [descriptionLabel.topAnchor constraintEqualToAnchor:customImageView.bottomAnchor constant:4],
+                                                  [descriptionLabel.heightAnchor constraintEqualToConstant:20],
+                                                  [descriptionLabel.widthAnchor constraintEqualToConstant:image.size.width],
+                                                  [descriptionLabel.centerXAnchor constraintEqualToAnchor:self.scrollView.safeAreaLayoutGuide.centerXAnchor]
+                                                  ]];
+        if (prevView == nil) {
+            [NSLayoutConstraint activateConstraints:@[
+                                                      [customImageView.topAnchor constraintEqualToAnchor:self.scrollView.topAnchor constant:50]
+                                                      ]];
+        } else {
+            [NSLayoutConstraint activateConstraints:@[
+                                                      [customImageView.topAnchor constraintEqualToAnchor:prevView.bottomAnchor constant:50]
+                                                      ]];
+        }
+        prevView = customImageView;
+    }
+}
 
-- (void)backToRootVC:(id) sender {
+- (void)moveToFirstView:(UITapGestureRecognizer*) tapGesture {
+    
+    UIView* selectedView = [self.scrollView hitTest:[tapGesture locationInView:self.scrollView] withEvent:nil];
+    if (![selectedView isEqual:self.scrollView]) {
+        
+        self.customView = [self.scrollView.subviews objectAtIndex:[self.scrollView.subviews indexOfObject:selectedView]];
+        MainViewController* root = [self.navigationController.viewControllers objectAtIndex:0];
+        [root addSelectedView:self.customView.imageName url:self.customView.imageURL];
+        root.title = self.customView.imageURL;
+        [self.navigationController popToRootViewControllerAnimated:YES];
+    }
+    
+}
+
+- (void)moveToRootView:(id) sender {
     MainViewController* root = [self.navigationController.viewControllers objectAtIndex:0];
     root.draggingCustomView = nil;
     [self.navigationController popToRootViewControllerAnimated:YES];
 }
+
+
 
 @end
